@@ -19,7 +19,6 @@ function mongo {
 
 switch ($command) {
     "start" {
-        go run ${ProjectRoot}/cmd/ambulance-api-service
         try {
           mongo up --detach
           go run ${ProjectRoot}/cmd/ambulance-api-service
