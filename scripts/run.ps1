@@ -20,15 +20,20 @@ function mongo {
 switch ($command) {
     "start" {
         try {
-          mongo up --detach
-          go run ${ProjectRoot}/cmd/ambulance-api-service
-          mongo down
-      } finally {
-          mongo down
-      }
+            mongo up --detach
+            go run ${ProjectRoot}/cmd/ambulance-api-service
+        } finally {
+            mongo down
+        }
     }
     "mongo" {
-      mongo up
+        mongo up
+    }
+    "docker" {
+        docker build -t lucyklus/ambulance-wl-webapi:local-build -f ${ProjectRoot}/build/docker/Dockerfile .
+    }
+    "test" {
+        go test -v ./...
     }
     "openapi" {
         docker run --rm -ti -v ${ProjectRoot}:/local openapitools/openapi-generator-cli generate -c /local/scripts/generator-cfg.yaml

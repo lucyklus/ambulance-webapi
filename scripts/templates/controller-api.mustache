@@ -20,8 +20,7 @@ type {{classname}} interface {
 
    {{/operation}}
  }
-
-// partial implementation of {{classname}} - all functions must be implemented in add on files
+ // partial implementation of {{classname}} - all functions must be implemented in add on files
 type impl{{classname}} struct {
 
 }
@@ -36,6 +35,8 @@ func (this *impl{{classname}}) addRoutes(routerGroup *gin.RouterGroup) {
   {{/operation}}
 }
 
+{{/operations}}
+
 // Copy following section to separate file, uncomment, and implement accordingly
 {{#operation}}
 // // {{nickname}} - {{{summary}}}{{#isDeprecated}}
@@ -45,5 +46,3 @@ func (this *impl{{classname}}) addRoutes(routerGroup *gin.RouterGroup) {
 // }
 //
 {{/operation}}
-
-{{/operations}}

@@ -132,3 +132,168 @@ func (this *implAmbulancesAPI) DeleteAmbulance(ctx *gin.Context) {
 			})
 	}
 }
+
+func (this *implAmbulancesAPI) GetAmbulance(ctx *gin.Context) {
+	value, exists := ctx.Get("db_service")
+	if !exists {
+		ctx.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  "Internal Server Error",
+				"message": "db_service not found",
+				"error":   "db_service not found",
+			})
+		return
+	}
+
+	db, ok := value.(db_service.DbService[Ambulance])
+	if !ok {
+		ctx.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  "Internal Server Error",
+				"message": "db_service context is not of type db_service.DbService",
+				"error":   "cannot cast db_service context to db_service.DbService",
+			})
+		return
+	}
+
+	ambulanceId := ctx.Param("ambulanceId")
+	ambulance, err := db.FindDocument(ctx, ambulanceId)
+
+	switch err {
+	case nil:
+		ctx.JSON(
+			http.StatusOK,
+			ambulance,
+		)
+	case db_service.ErrNotFound:
+		ctx.JSON(
+			http.StatusNotFound,
+			gin.H{
+				"status":  "Not Found",
+				"message": "Ambulance not found",
+				"error":   err.Error(),
+			},
+		)
+	default:
+		ctx.JSON(
+			http.StatusBadGateway,
+			gin.H{
+				"status":  "Bad Gateway",
+				"message": "Failed to get ambulance from database",
+				"error":   err.Error(),
+			})
+	}
+}
+
+func (this *implAmbulancesAPI) GetAmbulances(ctx *gin.Context) {
+	value, exists := ctx.Get("db_service")
+	if !exists {
+		ctx.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  "Internal Server Error",
+				"message": "db_service not found",
+				"error":   "db_service not found",
+			})
+		return
+	}
+
+	db, ok := value.(db_service.DbService[Ambulance])
+	if !ok {
+		ctx.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  "Internal Server Error",
+				"message": "db_service context is not of type db_service.DbService",
+				"error":   "cannot cast db_service context to db_service.DbService",
+			})
+		return
+	}
+
+	ambulances, err := db.GetAllDocuments(ctx)
+
+	switch err {
+	case nil:
+		ctx.JSON(
+			http.StatusOK,
+			ambulances,
+		)
+	default:
+		ctx.JSON(
+			http.StatusBadGateway,
+			gin.H{
+				"status":  "Bad Gateway",
+				"message": "Failed to get ambulances from database",
+				"error":   err.Error(),
+			})
+	}
+}
+
+func (this *implAmbulancesAPI) UpdateAmbulance(ctx *gin.Context) {
+	value, exists := ctx.Get("db_service")
+	if !exists {
+		ctx.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  "Internal Server Error",
+				"message": "db_service not found",
+				"error":   "db_service not found",
+			})
+		return
+	}
+
+	db, ok := value.(db_service.DbService[Ambulance])
+	if !ok {
+		ctx.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  "Internal Server Error",
+				"message": "db_service context is not of type db_service.DbService",
+				"error":   "cannot cast db_service context to db_service.DbService",
+			})
+		return
+	}
+
+	ambulanceId := ctx.Param("ambulanceId")
+	ambulance := Ambulance{}
+	err := ctx.BindJSON(&ambulance)
+	if err != nil {
+		ctx.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"status":  "Bad Request",
+				"message": "Invalid request body",
+				"error":   err.Error(),
+			})
+		return
+	}
+
+	err = db.UpdateDocument(ctx, ambulanceId, &ambulance)
+
+	switch err {
+	case nil:
+		ctx.JSON(
+			http.StatusOK,
+			ambulance,
+		)
+	case db_service.ErrNotFound:
+		ctx.JSON(
+			http.StatusNotFound,
+			gin.H{
+				"status":  "Not Found",
+				"message": "Ambulance not found",
+				"error":   err.Error(),
+			},
+		)
+	default:
+		ctx.JSON(
+			http.StatusBadGateway,
+			gin.H{
+				"status":  "Bad Gateway",
+				"message": "Failed to update ambulance in database",
+				"error":   err.Error(),
+			})
+	}
+}
